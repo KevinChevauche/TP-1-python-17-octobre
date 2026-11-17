@@ -7,7 +7,6 @@ pygame.init()
 
 #On défini les propriétés de la fenetre de base.
 LARGEUR, HAUTEUR = 1920, 1080
-FPS = 120
 
 #On crée la fenetre de jeu et le temps.
 fenetre = pygame.display.set_mode((LARGEUR, HAUTEUR))
@@ -36,10 +35,6 @@ while manif:
         if etat_jeu == "menu":
             etat_jeu = "niveau1"
         elif etat_jeu == "niveau1":
-            etat_jeu = "niveau2"
-        elif etat_jeu == "niveau2":
-            etat_jeu = "niveau3"
-        elif etat_jeu == "niveau3":
             etat_jeu = "menu"
 
     fenetre.fill((0, 0, 0))
@@ -54,8 +49,6 @@ while manif:
 
     #Affiche la page jusque la invisible au joueur quand elle est chargé.
     pygame.display.flip()
-    #On défini la vitesse de rafraichissement.
-    clock.tick(FPS)
 #On ferme le jeu.
 pygame.quit()
 sys.exit()
