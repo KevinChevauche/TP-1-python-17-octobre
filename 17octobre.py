@@ -138,9 +138,9 @@ bonhomme = pygame.Rect(LARGEUR_MONDE - 300, HAUTEUR_RUE - 80, 40, 80)
 
 #Liste des fourgons.
 liste_fourgons = [
-    pygame.Rect(950, HAUTEUR_RUE - f_h, f_w, f_h),                              # Barrage initial sur les toits
-    pygame.Rect(LIMITE_FIN + 300, HAUTEUR_RUE - f_h, f_w, f_h),                 # Premier fourgon bien après le drap
-    pygame.Rect(LIMITE_FIN + 650, HAUTEUR_RUE - f_h, f_w, f_h)                  # Second fourgon avant le groupe final
+    pygame.Rect(950, HAUTEUR_RUE - f_h, f_w, f_h),                             
+    pygame.Rect(LIMITE_FIN + 300, HAUTEUR_RUE - f_h, f_w, f_h),                 
+    pygame.Rect(LIMITE_FIN + 650, HAUTEUR_RUE - f_h, f_w, f_h)                  
 ]
 
 #Liste des poubelles.
@@ -207,7 +207,7 @@ while True:
                 #Donne la vitesse de saut vers le haut, plus au sol, délai coyote annulé.
                 jvy, au_sol, coyote = saut, False, 0
 
-#Tout ce bloc s'éxécute durant la partie.
+    #Tout ce bloc s'éxécute durant la partie.
     if etat == "jeu":
         #Récupère l'état de toutes les touches actullement enfoncés.
         keys = pygame.key.get_pressed()
