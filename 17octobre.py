@@ -240,7 +240,7 @@ while True:
                 jvy = 5
             #Sinon
             else:
-                #Pas de mouvements horizontale.
+                #Pas de mouvements verticale.
                 jvy = 0
             #Permet de sauter depuis l'échelle car elle est identifié comme le sol.
             au_sol = True
@@ -250,7 +250,7 @@ while True:
 
         #Déplace le joueur verticalement selont sa vitesse.
         jy += jvy
-        #Si au sol rechargement de page diminué.
+        #Si au sol délai de grâce est rechargé à 12 images, sinon il diminue.
         coyote = 12 if au_sol else max(0, coyote - 1)
         #On remet au_sol à faux.
         au_sol = False
@@ -264,7 +264,7 @@ while True:
             #Pose le joueur sur la rue et annule sa vitesse.
             jy, jvy, au_sol = HAUTEUR_RUE - jh, 0, True
 
-        #Au début on suppose qu'il n'est pas prêt d'un fourgon.
+        #Au début on suppose qu'il n'est pas près d'un fourgon.
         proche_menace_cette_frame = False
         #Pour chaque fourgon.
         for f_rect in liste_fourgons:
@@ -324,17 +324,17 @@ while True:
             if r_joueur.colliderect(p):
                 #Seulement si il est au niveau des toits.
                 if jy < HAUTEUR_TOITS + 20:
-                    #S'il arrive pas le dessus.
+                    #S'il arrive par le dessus.
                     if jvy > 0 and jy + jh - jvy <= p.y + 15: 
-                        #Il se pose sur le tout.
+                        #Il se pose sur le toit.
                         jy, jvy, au_sol = p.y - jh, 0, True
-                    #Sinon si il arrive par la doite.
-                    elif vitesse > 0 and r_joueur.right >= p.left and jx < p.left: 
-                        #Il est bloqué contre le mur droite.
-                        jx = p.left - jl
                     #Sinon si il arrive par la gauche.
-                    elif vitesse < 0 and r_joueur.left <= p.right and jx > p.right: 
+                    elif vitesse > 0 and r_joueur.right >= p.left and jx < p.left: 
                         #Il est bloqué contre le mur gauche.
+                        jx = p.left - jl
+                    #Sinon si il arrive par la droite.
+                    elif vitesse < 0 and r_joueur.left <= p.right and jx > p.right: 
+                        #Il est bloqué contre le mur droite.
                         jx = p.right
 
         #Si le joeur tombe sur le drap par dessus.
@@ -460,17 +460,17 @@ while True:
         pygame.draw.rect(fenetre, VERT, (bonhomme.x - cx, bonhomme.y - cy + 25, bonhomme.w, bonhomme.h - 25))
         #dessine sa tête.
         pygame.draw.rect(fenetre, (240, 205, 170), (bonhomme.x - cx + 5, bonhomme.y - cy, 30, 28))
-
+        
+        #Pour chaque fourgon.
         for f_rect in liste_fourgons:
-            #Pour chaque fourgon.
-            fenetre.blit(img_fourgon, (f_rect.x - cx, f_rect.y - cy))
             #Met le fourgon sur sa position.
-
+            fenetre.blit(img_fourgon, (f_rect.x - cx, f_rect.y - cy))
+        
+        #Pour chaque poubelle.
         for pub in liste_poubelles:
-            #Pour chaque poubelle.
-            fenetre.blit(img_poubelles, (pub.x - cx, pub.y - cy))
             #Colle l'image des poubelles à sa position.
-
+            fenetre.blit(img_poubelles, (pub.x - cx, pub.y - cy))
+            
         #Si le timer commence.
         if temps_proximite_menace > 0:
             #Montre le temps qu'il reste avant l'interpellation.
