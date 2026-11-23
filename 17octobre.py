@@ -4,10 +4,16 @@ import pygame, sys, os, random
 pygame.init()
 
 
-#On crée les caractéristiques de la fenetre de jeu.
+#On crée les caractéristiques de la fenetre de jeu (résolution logique de référence 16:9).
 LARGEUR, HAUTEUR, FPS = 1920, 1080, 120
-#On crée la fenetre python.
-fenetre = pygame.display.set_mode((LARGEUR, HAUTEUR))
+#Détecte la taille de l'écran actuel pour adapter la fenêtre de départ (portable ou fixe).
+info_ecran = pygame.display.Info()
+fenetre_w = info_ecran.current_w if info_ecran.current_w > 0 else LARGEUR
+fenetre_h = info_ecran.current_h if info_ecran.current_h > 0 else HAUTEUR
+#On crée la fenetre python redimensionnable adaptée à l'écran.
+fenetre = pygame.display.set_mode((fenetre_w, fenetre_h), pygame.RESIZABLE)
+#Surface logique fixe (1920x1080) pour garder exactement la même physique et les mêmes positions.
+surface_jeu = pygame.Surface((LARGEUR, HAUTEUR))
 #Crée un chrono pour mesurer le temps dans le jeu et limiter la vitesse.
 clock = pygame.time.Clock()
 
@@ -21,6 +27,7 @@ ROUGE = (230, 50, 50)
 VERT = (50, 220, 90)
 BLEU = (50, 120, 255)
 ORANGE = (230, 130, 40)
+NOIR = (0, 0, 0)
 #On enregistre la couleur des nuages avec un 200 supplémentaire pour les rendre un peu transparent.
 COULEUR_NUAGE = (255, 255, 255, 200)
 
@@ -128,25 +135,49 @@ for i, mult in enumerate(sequence_batiments):
 
 #Coordonnée de la fin de zone des toits plus un peu de marge.
 LIMITE_FIN = current_x - gap_progressif + 150
-#Largeur totale du niveau.
-LARGEUR_MONDE = LIMITE_FIN + 800
+#Largeur totale du niveau (rue finale très allongée après le drap).
+LARGEUR_MONDE = LIMITE_FIN + 4600
 
 #Rectangle du drap des pompiers.
 drap = pygame.Rect(plateformes[-1].right - 50, HAUTEUR_RUE - 30, 350, 30)
+#Début de la portion de rue allongée après le drap.
+DEBUT_FIN_LONGUE = drap.right + 120
 #Personnage d'arrivé nommé "manif".
 bonhomme = pygame.Rect(LARGEUR_MONDE - 300, HAUTEUR_RUE - 80, 40, 80)
 
-#Liste des fourgons.
+#Liste des fourgons (uniquement le premier camion).
 liste_fourgons = [
-    pygame.Rect(950, HAUTEUR_RUE - f_h, f_w, f_h),                             
-    pygame.Rect(LIMITE_FIN + 300, HAUTEUR_RUE - f_h, f_w, f_h),                 
-    pygame.Rect(LIMITE_FIN + 650, HAUTEUR_RUE - f_h, f_w, f_h)                  
+    pygame.Rect(950, HAUTEUR_RUE - f_h, f_w, f_h)
+]
+
+#Liste des CRS placés sur toute la longue rue finale après le drap.
+crs_w, crs_h = 42, 82
+liste_crs = [
+    pygame.Rect(DEBUT_FIN_LONGUE + 260, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 325, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 760, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 825, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 1320, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 1385, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 1450, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 1980, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 2045, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 2580, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 2645, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 2710, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 3250, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 3315, HAUTEUR_RUE - crs_h, crs_w, crs_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 3380, HAUTEUR_RUE - crs_h, crs_w, crs_h)
 ]
 
 #Liste des poubelles.
 liste_poubelles = [
-    pygame.Rect(LIMITE_FIN + 180, HAUTEUR_RUE - p_h, p_w, p_h),
-    pygame.Rect(LIMITE_FIN + 530, HAUTEUR_RUE - p_h, p_w, p_h)
+    pygame.Rect(DEBUT_FIN_LONGUE + 140, HAUTEUR_RUE - p_h, p_w, p_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 620, HAUTEUR_RUE - p_h, p_w, p_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 1150, HAUTEUR_RUE - p_h, p_w, p_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 1780, HAUTEUR_RUE - p_h, p_w, p_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 2360, HAUTEUR_RUE - p_h, p_w, p_h),
+    pygame.Rect(DEBUT_FIN_LONGUE + 3020, HAUTEUR_RUE - p_h, p_w, p_h)
 ]
 
 #Utilise le hasard pour générer les nuages.
@@ -173,7 +204,7 @@ jx, jy, jl, jh = 100, HAUTEUR_RUE - 85, 45, 85
 jvx, jvy, gravite, saut = 7, 0, 0.55, -15
 #Le joueur n'est pas au sol au départ (évite que ça bug).
 au_sol, coyote = False, 0
-#Temps passé près d'un fourgon, en secondes.
+#Temps passé près d'un fourgon ou d'un CRS, en secondes.
 temps_proximite_menace = 0.0
 
 def reset():
@@ -194,8 +225,17 @@ while True:
         if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
             #Ferme pygame puis arrête le programme.
             pygame.quit(); sys.exit()
+        #Si l'utilisateur redimensionne la fenêtre.
+        if e.type == pygame.VIDEORESIZE:
+            fenetre = pygame.display.set_mode((max(320, e.w), max(240, e.h)), pygame.RESIZABLE)
         #Si une touche vient d'être enfoncé.
         if e.type == pygame.KEYDOWN:
+            #F11 bascule entre fenêtre redimensionnable et plein écran adaptatif.
+            if e.key == pygame.K_F11:
+                if fenetre.get_flags() & pygame.FULLSCREEN:
+                    fenetre = pygame.display.set_mode((fenetre_w, fenetre_h), pygame.RESIZABLE)
+                else:
+                    fenetre = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
             #Si c'est Entrée ET qu'on est sur un écran de menu.
             if e.key == pygame.K_RETURN and etat in ["menu", "game_over", "victoire", "interpellation"]:
                 #Lance la partie et remet le joueur à l'état de départ.
@@ -264,7 +304,7 @@ while True:
             #Pose le joueur sur la rue et annule sa vitesse.
             jy, jvy, au_sol = HAUTEUR_RUE - jh, 0, True
 
-        #Au début on suppose qu'il n'est pas près d'un fourgon.
+        #Au début on suppose qu'il n'est pas près d'une menace (fourgon ou CRS).
         proche_menace_cette_frame = False
         #Pour chaque fourgon.
         for f_rect in liste_fourgons:
@@ -289,6 +329,20 @@ while True:
                 #Marque qu'une menace est proche.
                 proche_menace_cette_frame = True
 
+        #Pour chaque CRS sur la fin du parcours.
+        for crs_rect in liste_crs:
+            #Le CRS bloque latéralement si on fonce dedans.
+            if r_joueur.colliderect(crs_rect):
+                if vitesse > 0 and r_joueur.right >= crs_rect.left and jx < crs_rect.left:
+                    jx = crs_rect.left - jl
+                elif vitesse < 0 and r_joueur.left <= crs_rect.right and jx > crs_rect.right:
+                    jx = crs_rect.right
+
+            #Zone de danger autour du CRS : 110px de chaque côté.
+            zone_crs = pygame.Rect(crs_rect.x - 110, HAUTEUR_RUE - jh - 20, crs_rect.w + 220, jh + 40)
+            if r_joueur.colliderect(zone_crs):
+                proche_menace_cette_frame = True
+
         #Pour chaque poubelle
         for pub in liste_poubelles:
             #Si le joueur touche cette poubelle.
@@ -306,7 +360,7 @@ while True:
                     #Le bloque sur le coté droit.
                     jx = pub.right
 
-        #Si le joueur est prêt d'un fourgon.
+        #Si le joueur est près d'un fourgon ou d'un CRS.
         if proche_menace_cette_frame:
             #Le timer augmente un peu le temps écoulé depuis la dernière image pour la jouabilité.
             temps_proximite_menace += dt
@@ -357,8 +411,8 @@ while True:
         #Empêche le joueur de sortir du monde.
         jx = max(0, min(jx, LARGEUR_MONDE - jl))
 
-    #efface l'écran en le remplissant du ciel bleu.
-    fenetre.fill(FOND_CIEL)
+    #efface la surface logique en la remplissant du ciel bleu.
+    surface_jeu.fill(FOND_CIEL)
     
     #Decallage horizontale de la caméra sur le joeur à lécran(la caméra suit le joeur.)
     cx = max(0, min(jx - LARGEUR // 2, LARGEUR_MONDE - LARGEUR))
@@ -370,33 +424,33 @@ while True:
         #On affiche le titre avec police titre en blanc.
         t = p_titre.render("17 OCTOBRE 2026 : LA MANIFESTATION", True, BLANC)
         #Met le titre au centre de l'écran.
-        fenetre.blit(t, (LARGEUR//2 - t.get_width()//2, 350))
+        surface_jeu.blit(t, (LARGEUR//2 - t.get_width()//2, 350))
         #Affiche la consigne en vert au milieu.
-        fenetre.blit(p_texte.render("Appuyez sur [ ENTRÉE ] pour commencer", True, VERT), (LARGEUR//2 - 200, 480))
+        surface_jeu.blit(p_texte.render("Appuyez sur [ ENTRÉE ] pour commencer", True, VERT), (LARGEUR//2 - 200, 480))
     #si on a perdu1.
     elif etat == "game_over":
         #On affiche le titre avec police titre en rouge.
         t = p_titre.render("MISSION COMPROMISE (CHUTE DANS LE VIDE)", True, ROUGE)
         #Met le titre au centre de l'écran.
-        fenetre.blit(t, (LARGEUR//2 - t.get_width()//2, 400))
+        surface_jeu.blit(t, (LARGEUR//2 - t.get_width()//2, 400))
         #Affiche la consigne en vert au milieu.
-        fenetre.blit(p_texte.render("Appuyez sur [ ENTRÉE ] pour recommencer", True, VERT), (LARGEUR//2 - 220, 520))
+        surface_jeu.blit(p_texte.render("Appuyez sur [ ENTRÉE ] pour recommencer", True, VERT), (LARGEUR//2 - 220, 520))
     #si on a perdu2.
     elif etat == "interpellation":
         #On affiche le titre avec police titre en rouge.
         t = p_titre.render("INTERPELLÉ PAR LES FORCES DE L'ORDRE !", True, ROUGE)
         #Met le titre au centre de l'écran.
-        fenetre.blit(t, (LARGEUR//2 - t.get_width()//2, 400))
+        surface_jeu.blit(t, (LARGEUR//2 - t.get_width()//2, 400))
         #Affiche la consigne en vert au milieu.
-        fenetre.blit(p_texte.render("Appuyez sur [ ENTRÉE ] pour recommencer", True, VERT), (LARGEUR//2 - 220, 520))
+        surface_jeu.blit(p_texte.render("Appuyez sur [ ENTRÉE ] pour recommencer", True, VERT), (LARGEUR//2 - 220, 520))
     #si on a gagné
     elif etat == "victoire":
         #On affiche le titre avec police titre en vert.
         t = p_titre.render("VICTOIRE ! VOUS AVEZ REJOINT LE GROUPE !", True, VERT)
         #Met le titre au centre de l'écran.
-        fenetre.blit(t, (LARGEUR//2 - t.get_width()//2, 400))
+        surface_jeu.blit(t, (LARGEUR//2 - t.get_width()//2, 400))
         #Affiche la consigne en vert au milieu.
-        fenetre.blit(p_texte.render("Appuyez sur [ ENTRÉE ] pour rejouer", True, BLANC), (LARGEUR//2 - 180, 520))
+        surface_jeu.blit(p_texte.render("Appuyez sur [ ENTRÉE ] pour rejouer", True, BLANC), (LARGEUR//2 - 180, 520))
     #sinon
     else:
         #Les nuages bougent à la moitié de la vitesse de la caméra.
@@ -408,68 +462,83 @@ while True:
             #Dessine une ellipse blanche semitransparente.
             pygame.draw.ellipse(surf_nuage, COULEUR_NUAGE, (0, 0, nw, nh))
             #Colle le nuage à l'écran, décalé par la camera ralentie.
-            fenetre.blit(surf_nuage, (int(nx - parallax_cx), ny))
+            surface_jeu.blit(surf_nuage, (int(nx - parallax_cx), ny))
 
         #On dessine l'asphalte gris sur toute la largeur du monde.
-        pygame.draw.rect(fenetre, RUE, (0 - cx, HAUTEUR_RUE - cy, LARGEUR_MONDE, HAUTEUR * 2))
+        pygame.draw.rect(surface_jeu, RUE, (0 - cx, HAUTEUR_RUE - cy, LARGEUR_MONDE, HAUTEUR * 2))
         #Dessine le trottoir (bande plus claire de 15px)
-        pygame.draw.rect(fenetre, (70, 75, 85), (0 - cx, HAUTEUR_RUE - cy, LARGEUR_MONDE, 15))
+        pygame.draw.rect(surface_jeu, (70, 75, 85), (0 - cx, HAUTEUR_RUE - cy, LARGEUR_MONDE, 15))
         
         #Tout les 140 px.
         for lx in range(0, LARGEUR_MONDE, 140):
             #Trait de route 1.
-            pygame.draw.rect(fenetre, (200, 200, 210), (lx - cx, HAUTEUR_RUE + 40 - cy, 70, 6))
+            pygame.draw.rect(surface_jeu, (200, 200, 210), (lx - cx, HAUTEUR_RUE + 40 - cy, 70, 6))
             #Trait de route 2.
-            pygame.draw.rect(fenetre, (200, 200, 210), (lx - cx, HAUTEUR_RUE + 120 - cy, 70, 6))
+            pygame.draw.rect(surface_jeu, (200, 200, 210), (lx - cx, HAUTEUR_RUE + 120 - cy, 70, 6))
             #Trait de route 3.
-            pygame.draw.rect(fenetre, (200, 200, 210), (lx - cx, HAUTEUR_RUE + 200 - cy, 70, 6))
+            pygame.draw.rect(surface_jeu, (200, 200, 210), (lx - cx, HAUTEUR_RUE + 200 - cy, 70, 6))
 
         #Dessine l'échelle.
-        pygame.draw.rect(fenetre, (180, 140, 60), (echelle.x - cx, echelle.y - cy, echelle.w, echelle.h))
+        pygame.draw.rect(surface_jeu, (180, 140, 60), (echelle.x - cx, echelle.y - cy, echelle.w, echelle.h))
         #Pour chauqe position verticale tout les 30 px sur l'échelle.
         for ey in range(echelle.y, echelle.y + echelle.h, 30):
             #Dessine un barreau pour l'échelle.
-            pygame.draw.rect(fenetre, (120, 90, 30), (echelle.x - cx, ey - cy, echelle.w, 6))
+            pygame.draw.rect(surface_jeu, (120, 90, 30), (echelle.x - cx, ey - cy, echelle.w, 6))
         
         #Si le joueur est au-dessus de la ligne des toits.
         if jy < HAUTEUR_TOITS:
             #Décalage visuel de 45px vers le bas.
             decalage_visuel_y = 45 if jy <= HAUTEUR_TOITS + 5 else 0
             #Dessine le corp du joueur.
-            pygame.draw.rect(fenetre, BLEU, (jx - cx, jy - cy + 25 + decalage_visuel_y, jl, jh - 25))
+            pygame.draw.rect(surface_jeu, BLEU, (jx - cx, jy - cy + 25 + decalage_visuel_y, jl, jh - 25))
             #Dessine la tête du joueur.
-            pygame.draw.rect(fenetre, (240, 205, 170), (jx - cx + 7, jy - cy + decalage_visuel_y, 30, 28))
+            pygame.draw.rect(surface_jeu, (240, 205, 170), (jx - cx + 7, jy - cy + decalage_visuel_y, 30, 28))
 
         #Pour chaque immeuble.
         for p in plateformes:
             #Etire l'image de façade à la largeur exacte de cet immeuble.
             img_batiment = pygame.transform.scale(img_immeuble_base, (p.w, HAUTEUR_RUE - HAUTEUR_TOITS))
             #Colle l'imeuble à l'écran.
-            fenetre.blit(img_batiment, (p.x - cx, p.y - cy))
+            surface_jeu.blit(img_batiment, (p.x - cx, p.y - cy))
 
         #Si le joueur est au niveau des toits ou plus bas.
         if jy >= HAUTEUR_TOITS:
             #Dessine le corp par dessus les immeubles.
-            pygame.draw.rect(fenetre, BLEU, (jx - cx, jy - cy + 25, jl, jh - 25))
+            pygame.draw.rect(surface_jeu, BLEU, (jx - cx, jy - cy + 25, jl, jh - 25))
             #Dessine la tête.
-            pygame.draw.rect(fenetre, (240, 205, 170), (jx - cx + 7, jy - cy, 30, 28))
+            pygame.draw.rect(surface_jeu, (240, 205, 170), (jx - cx + 7, jy - cy, 30, 28))
 
         #Dessine le drap des pompiers.
-        pygame.draw.rect(fenetre, (255, 120, 120), (drap.x - cx, drap.y - cy, drap.w, drap.h))
+        pygame.draw.rect(surface_jeu, (255, 120, 120), (drap.x - cx, drap.y - cy, drap.w, drap.h))
         #Perso d'arrivé avec t shirt vert.
-        pygame.draw.rect(fenetre, VERT, (bonhomme.x - cx, bonhomme.y - cy + 25, bonhomme.w, bonhomme.h - 25))
+        pygame.draw.rect(surface_jeu, VERT, (bonhomme.x - cx, bonhomme.y - cy + 25, bonhomme.w, bonhomme.h - 25))
         #dessine sa tête.
-        pygame.draw.rect(fenetre, (240, 205, 170), (bonhomme.x - cx + 5, bonhomme.y - cy, 30, 28))
+        pygame.draw.rect(surface_jeu, (240, 205, 170), (bonhomme.x - cx + 5, bonhomme.y - cy, 30, 28))
         
         #Pour chaque fourgon.
         for f_rect in liste_fourgons:
             #Met le fourgon sur sa position.
-            fenetre.blit(img_fourgon, (f_rect.x - cx, f_rect.y - cy))
+            surface_jeu.blit(img_fourgon, (f_rect.x - cx, f_rect.y - cy))
+
+        #Dessine chaque CRS sur la fin du parcours (tenue sombre, casque, visière et bouclier).
+        for crs_rect in liste_crs:
+            cx_local = crs_rect.x - cx
+            cy_local = crs_rect.y - cy
+            #Tête + casque CRS.
+            pygame.draw.rect(surface_jeu, (240, 205, 170), (cx_local + 7, cy_local + 4, 24, 20))
+            pygame.draw.rect(surface_jeu, (25, 30, 45), (cx_local + 5, cy_local, 28, 12), border_radius=3)
+            #Visière claire.
+            pygame.draw.rect(surface_jeu, (170, 220, 255), (cx_local + 7, cy_local + 9, 24, 5))
+            #Corps / uniforme sombre.
+            pygame.draw.rect(surface_jeu, (25, 30, 45), (cx_local + 3, cy_local + 24, 32, crs_rect.h - 24), border_radius=3)
+            #Bouclier transparent sur le devant (vers la gauche, face au joueur).
+            pygame.draw.rect(surface_jeu, (130, 190, 235), (cx_local - 6, cy_local + 14, 9, crs_rect.h - 18), border_radius=2)
+            pygame.draw.rect(surface_jeu, BLANC, (cx_local - 6, cy_local + 14, 9, crs_rect.h - 18), 1, border_radius=2)
         
         #Pour chaque poubelle.
         for pub in liste_poubelles:
             #Colle l'image des poubelles à sa position.
-            fenetre.blit(img_poubelles, (pub.x - cx, pub.y - cy))
+            surface_jeu.blit(img_poubelles, (pub.x - cx, pub.y - cy))
             
         #Si le timer commence.
         if temps_proximite_menace > 0:
@@ -478,26 +547,38 @@ while True:
             #Crée le texte d'alerte avec 1 décimale.
             txt_timer = p_alerte.render(f"RISQUE D'INTERPELLATION : {temps_restant:.1f}s", True, ROUGE)
             #L'alerte est centré en haut de l'écran.
-            fenetre.blit(txt_timer, (LARGEUR // 2 - txt_timer.get_width() // 2, 120))
+            surface_jeu.blit(txt_timer, (LARGEUR // 2 - txt_timer.get_width() // 2, 120))
 
         #Dessine le fond sombre du panneau d'infos.
-        pygame.draw.rect(fenetre, (15, 15, 25), (30, 40, 420, 100), border_radius=8)
+        pygame.draw.rect(surface_jeu, (15, 15, 25), (30, 40, 420, 100), border_radius=8)
         #Dessine le contour blanc du panneau.
-        pygame.draw.rect(fenetre, BLANC, (30, 40, 420, 100), 2, border_radius=8)
+        pygame.draw.rect(surface_jeu, BLANC, (30, 40, 420, 100), 2, border_radius=8)
         
         #Dessine le fond gris de la barre de vie.
-        pygame.draw.rect(fenetre, (60, 60, 70), (50, 55, 380, 18), border_radius=4)
+        pygame.draw.rect(surface_jeu, (60, 60, 70), (50, 55, 380, 18), border_radius=4)
         #Si vivant, dessine la partie rouge proportionnelle à la vie.
-        if vies > 0: pygame.draw.rect(fenetre, ROUGE, (50, 55, int((vies/100)*380), 18), border_radius=4)
+        if vies > 0: pygame.draw.rect(surface_jeu, ROUGE, (50, 55, int((vies/100)*380), 18), border_radius=4)
         #Ecrite "VIE" au dessus de la barre.
-        fenetre.blit(p_petit.render(f"VIE : {int(vies)} / 100", True, BLANC), (60, 56))
+        surface_jeu.blit(p_petit.render(f"VIE : {int(vies)} / 100", True, BLANC), (60, 56))
 
         #Dessine le fond gris de la barre d'endurance.
-        pygame.draw.rect(fenetre, (60, 60, 70), (50, 80, 380, 18), border_radius=4)
+        pygame.draw.rect(surface_jeu, (60, 60, 70), (50, 80, 380, 18), border_radius=4)
         #Dessine la barre d'endurance orange.
-        pygame.draw.rect(fenetre, ORANGE, (50, 80, int((endurance/100)*380), 18), border_radius=4)
+        pygame.draw.rect(surface_jeu, ORANGE, (50, 80, int((endurance/100)*380), 18), border_radius=4)
         #Ecris "ENDURANCE" au dessus de la barre.
-        fenetre.blit(p_petit.render(f"ENDURANCE : {int(endurance)}%", True, BLANC), (60, 81))
+        surface_jeu.blit(p_petit.render(f"ENDURANCE : {int(endurance)}%", True, BLANC), (60, 81))
+
+    #Adapte la surface logique (1920x1080) à la taille réelle de la fenêtre en gardant le ratio.
+    w_actuel, h_actuel = fenetre.get_size()
+    echelle_affichage = min(w_actuel / LARGEUR, h_actuel / HAUTEUR)
+    nouvelle_w = int(LARGEUR * echelle_affichage)
+    nouvelle_h = int(HAUTEUR * echelle_affichage)
+    offset_x = (w_actuel - nouvelle_w) // 2
+    offset_y = (h_actuel - nouvelle_h) // 2
+
+    fenetre.fill(NOIR)
+    surface_redimensionnee = pygame.transform.smoothscale(surface_jeu, (nouvelle_w, nouvelle_h))
+    fenetre.blit(surface_redimensionnee, (offset_x, offset_y))
 
     #Affiche à l'écran tout ce qui vient d'être dessiné en arrière plan.
     pygame.display.flip()
