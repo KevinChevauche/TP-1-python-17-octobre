@@ -619,3 +619,4 @@ while True:
     #Utilise les fps récupéré plus tot et récupère le temps écoulé pour la prochaine frame.
     dt = clock.tick(FPS) / 1000.0
 
+
