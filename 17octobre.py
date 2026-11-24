@@ -56,7 +56,7 @@ try:
     img_rognee = img_brute.subsurface(zone_utile)
     #Hauteur voulue de l'immeuble.
     hauteur_cible = HAUTEUR_RUE - HAUTEUR_TOITS
-    #Coefficient pour atteindre la bonne hauteur.
+    #Variable de la bonne hauteur.
     ratio = hauteur_cible / img_rognee.get_height()
     #Largeur proportionnelle, arrondie en entier.
     largeur_cible = int(img_rognee.get_width() * ratio)
@@ -115,6 +115,10 @@ except Exception as e:
 echelle = pygame.Rect(400, HAUTEUR_TOITS, 50, HAUTEUR_RUE - HAUTEUR_TOITS)
 #Liste vide qui contiendra les immeubles.
 plateformes = []
+#Liste des CRS placés sur les grands toits.
+liste_crs_toits = []
+crs_w, crs_h = 42, 82
+
 #Largeur de chaque immeuble en multipliant la valeur de base(3= fois 3).
 sequence_batiments = [1, 1, 2, 1, 3, 1, 1, 2, 1, 3, 1, 2, 1, 1, 3, 1, 2, 1]
 #Position du premier immeuble.
@@ -127,7 +131,15 @@ for i, mult in enumerate(sequence_batiments):
     #Largeur réelle de cet immeuble en pixels.
     largeur_plat = img_w * mult
     #Ajoute le rectangle de cet immeuble.
-    plateformes.append(pygame.Rect(current_x, HAUTEUR_TOITS, largeur_plat, HAUTEUR_RUE - HAUTEUR_TOITS))
+    plat_rect = pygame.Rect(current_x, HAUTEUR_TOITS, largeur_plat, HAUTEUR_RUE - HAUTEUR_TOITS)
+    plateformes.append(plat_rect)
+
+    #Ajoute des CRS uniquement sur les grands toits (largeur multipliée par 2 ou 3).
+    if mult >= 2:
+        liste_crs_toits.append(pygame.Rect(plat_rect.centerx - crs_w // 2, HAUTEUR_TOITS - crs_h, crs_w, crs_h))
+        if mult >= 3:
+            liste_crs_toits.append(pygame.Rect(plat_rect.right - 90, HAUTEUR_TOITS - crs_h, crs_w, crs_h))
+
     #Calcule l'espace avant le prochain immeuble. Grandit de 12px à chaque immeuble.
     gap_progressif = base_gap + int(i * 12)
     #Avance la position.
@@ -151,7 +163,6 @@ liste_fourgons = [
 ]
 
 #Liste des CRS placés sur toute la longue rue finale après le drap.
-crs_w, crs_h = 42, 82
 liste_crs = [
     pygame.Rect(DEBUT_FIN_LONGUE + 260, HAUTEUR_RUE - crs_h, crs_w, crs_h),
     pygame.Rect(DEBUT_FIN_LONGUE + 325, HAUTEUR_RUE - crs_h, crs_w, crs_h),
@@ -329,6 +340,18 @@ while True:
                 #Marque qu'une menace est proche.
                 proche_menace_cette_frame = True
 
+        #Pour chaque CRS sur les grands toits.
+        for crs_rect in liste_crs_toits:
+            if r_joueur.colliderect(crs_rect):
+                if vitesse > 0 and r_joueur.right >= crs_rect.left and jx < crs_rect.left:
+                    jx = crs_rect.left - jl
+                elif vitesse < 0 and r_joueur.left <= crs_rect.right and jx > crs_rect.right:
+                    jx = crs_rect.right
+
+            zone_crs_toit = pygame.Rect(crs_rect.x - 110, HAUTEUR_TOITS - jh - 20, crs_rect.w + 220, jh + 40)
+            if r_joueur.colliderect(zone_crs_toit):
+                proche_menace_cette_frame = True
+
         #Pour chaque CRS sur la fin du parcours.
         for crs_rect in liste_crs:
             #Le CRS bloque latéralement si on fonce dedans.
@@ -494,6 +517,17 @@ while True:
             #Dessine la tête du joueur.
             pygame.draw.rect(surface_jeu, (240, 205, 170), (jx - cx + 7, jy - cy + decalage_visuel_y, 30, 28))
 
+        #Dessine les CRS sur les grands toits (en arrière-plan par rapport au rebord du toit comme le joueur).
+        for crs_rect in liste_crs_toits:
+            cx_local = crs_rect.x - cx
+            cy_local = crs_rect.y - cy + 45
+            pygame.draw.rect(surface_jeu, (240, 205, 170), (cx_local + 7, cy_local + 4, 24, 20))
+            pygame.draw.rect(surface_jeu, (25, 30, 45), (cx_local + 5, cy_local, 28, 12), border_radius=3)
+            pygame.draw.rect(surface_jeu, (170, 220, 255), (cx_local + 7, cy_local + 9, 24, 5))
+            pygame.draw.rect(surface_jeu, (25, 30, 45), (cx_local + 3, cy_local + 24, 32, crs_rect.h - 24), border_radius=3)
+            pygame.draw.rect(surface_jeu, (130, 190, 235), (cx_local - 6, cy_local + 14, 9, crs_rect.h - 18), border_radius=2)
+            pygame.draw.rect(surface_jeu, BLANC, (cx_local - 6, cy_local + 14, 9, crs_rect.h - 18), 1, border_radius=2)
+
         #Pour chaque immeuble.
         for p in plateformes:
             #Etire l'image de façade à la largeur exacte de cet immeuble.
@@ -584,3 +618,4 @@ while True:
     pygame.display.flip()
     #Utilise les fps récupéré plus tot et récupère le temps écoulé pour la prochaine frame.
     dt = clock.tick(FPS) / 1000.0
+
